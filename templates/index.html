@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARM Loan Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 40px;
+        }
+
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 40px auto;
+            width:400px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        p {
+            font-size: 1.1em;
+            max-width: 400px;
+            margin: 10px auto;
+            background-color: #ffffff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header{
+            background-color: #F5F5DC;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 40px auto auto auto;
+            width:400px;
+            position:center;
+
+        }
+
+        .slider-container {
+            width: 80%;
+            margin: auto;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        #armLoanRefinancing{
+            font-size: 24px;
+        }
+         #fixedLoanRefinancing {
+            font-size: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header" style="  left: 50%;">
+        <h1> Loan Payment Schedule Calculator Applet</h1>
+        <h2> Chasman, Lowy, Lipshitz</h2>
+    </div>
+    <div style="float:left;">
+        <form id="loanForm">
+            <legend style="h1"><h1>Single Rate Loan</h1></legend>
+            <label for="P">Principal Amount (P):</label>
+            <input type="number" id="Pstatic" value="100000" required><br>
+
+            <label for="r">Monthly Interest Rate (r)</label>
+            <input type="number" step="0.01" id="rstatic" value="0.02" required><br>
+
+            <label for="m">Number of Periods Per Year (m):</label>
+            <input type="number" id="mstatic" value="12" required><br>
+
+            <label for="T">Number of Years:</label>
+            <input type="number" id="Tstatic" value="10" required><br>
+
+            <button type="button" onclick="paymentWasCalculated()">Calculate</button>
+        </form>
+
+
+
+        <h2>Fixed Rate Loan Payment Structure:</h2>
+        <h3>Monthly Payment C: <span id="monthlyPayment"></span></h3>
+        <h3>Payment Schedule: </h3>
+        <h2> Recasting: </h2>
+             <div class="slider-container">
+                <input type="range" min="0" max="100" value="0" id="fixedLoanRange" class="slider">
+            </div>
+        <h3> Recasting with lump sum: <span id="fixedLoanRecasting">0</span> </h3>
+        <h3> On total principal: <span id="fixedLoanTotalPrincipal">0</span> </h3>
+        <h3> Total Payment Pre-Recast: <span id="fixedLoanTotalPayment">0</span> </h3>
+        <h3> Total Recast Payment: <span id="fixedLoanTotalPaymentRecast">0</span> </h3>
+        <canvas id="interestPerPaymentRecasting" style="width:100%;max-width:700px"></canvas> 
+
+     </div>
+    
+     <div style="float:left; padding-left: 30px;">
+        <form id="loanForm">
+            <legend style="h1"><h1>Adjustable Rate (ARM) Loan</h1></legend>
+
+            <label for="P">Principal Amount (P):</label>
+            <input type="number" id="Parm" value="200000" required><br>
+
+            <label for="r1">Monthly Interest Rate (r1):</label>
+            <input type="number" step="0.01" value="0.03" id="r1arm" required><br>
+
+            <label for="r2">Monthly Interest Rate (r2):</label>
+            <input type="number" step="0.01" value="0.02" id="r2arm" required><br>
+
+            <label for="m">Number of Periods of rate r1 (m):</label>
+            <input type="number" id="marm" value="30" required><br>
+
+            <label for="T">Total number of periods(N):</label>
+            <input type="number" id="Narm" value="100" required><br>
+
+            <button type="button" onclick="calculatePaymentsARM()">Calculate</button>
+        </form>
+
+
+        <h2>Adjustable Rate Loan Payment Structure:</h2>
+        <p>Monthly Payment C1: <span id="monthlyARMPaymentC1"></span></p>
+        <p>Monthly Payment C2: <span id="monthlyARMPaymentC2"></span></p>
+        <p>Total interest sum(R): <span id="totalARMRn"></span></p>
+
+        <p>Payment Schedule: 
+            <canvas id="interestPerPaymentARM" style="width:80%;max-width:400px"></canvas>
+
+        </p>
+
+<!--         <span> <div class="slider-container">
+            <input type="range" min="0" max="100" value="0" id="armLoanRange" class="slider">
+            <span id="armLoanRefinancing">0</span>
+        </div> -->
+    </div>
+    
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+    </script>
+</body>
+
+</html>
